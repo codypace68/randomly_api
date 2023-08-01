@@ -5,8 +5,15 @@ const {
     DataTypes
   } = require('sequelize');
 const {removeStopwords} = require('stopword');
-
-const sequelize = new Sequelize('mysql://root:password@localhost:3306/ideas') // Example for mysql
+// 'mysql://root:password@localhost:3306/ideas'
+const sequelize = new Sequelize({
+  username: "root",
+  password: "password",
+  dialect: "mysql",
+  host: 'localhost',
+  database: "ideas",
+  port: 3306
+}) // Example for mysql
 
 try {
 sequelize.authenticate();
@@ -45,6 +52,48 @@ Categories.sync({alter:false}).then(err => {
     console.log('Categories Table created successfully');
   }
 })
+
+// Category Table Setup
+// ---------------------------------------
+const Users = sequelize.define('Users', {
+  // Model attributes are defined here
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    unique: true,
+    primaryKey: true,
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING,
+    unique: true,
+    allowNull: false,
+  },
+  picture: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null
+  },
+  firstname: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: true
+  },
+  lastname: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: true
+  }
+});
+
+Users.sync({alter:false}).then(err => {
+  if (err) {
+    console.log('Error occured while creating table', err);
+  } else {
+    console.log('Categories Table created successfully');
+  }
+})
+
 
 // setTimeout(()=>{
 //     Categories.create({
@@ -141,6 +190,10 @@ const Ideas = sequelize.define('Ideas', {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    user: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     word: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -158,6 +211,7 @@ const Ideas = sequelize.define('Ideas', {
 
 Ideas.belongsTo(Categories, {foreignKey: 'category'});
 Ideas.belongsTo(Words, {foreignKey: 'word'});
+Ideas.belongsTo(Users, {foreignKey: 'user'})
 
 Ideas.sync({alter:false}).then(err => {
 if (err) {
@@ -182,6 +236,7 @@ if (err) {
 exports.Words = Words;
 exports.Ideas = Ideas;
 exports.Categories = Categories;
+exports.Users = Users;
 
 
 // setTimeout(removeWords, 3000);
